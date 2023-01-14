@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(json());
 
-const PORT = 5001;
+const PORT = 5000;
 
 const mongoClient = new MongoClient(process.env.DATABASE_URL);
 
