@@ -70,7 +70,7 @@ app.get("/messages", async (req, res) => {
 
     const { user } = req.headers;
 
-    if (error) return res.send(error.message);
+    if (error) return res.status(422).send(error.message);
 
     const todasAsMensagens = await db.collection("messages").find({ $or: [{ to: user }, { from: user }, { to: "Todos" }] }).toArray();
     if (!limit) return res.send(todasAsMensagens.reverse());
