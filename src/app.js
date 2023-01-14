@@ -72,7 +72,7 @@ app.get("/messages", async (req, res) => {
 
     if (error) return res.send(error.message);
 
-    const todasAsMensagens = await db.collection("messages").find({ $or: [{ to: user }, { from: user }, { to: "todos" }] }).toArray();
+    const todasAsMensagens = await db.collection("messages").find({ $or: [{ to: user }, { from: user }, { to: "Todos" }] }).toArray();
     if (!limit) return res.send(todasAsMensagens);
 
     const mensagensLimitadas = todasAsMensagens.slice(-value);
