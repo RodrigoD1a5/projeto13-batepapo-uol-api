@@ -96,6 +96,25 @@ app.post("/status", async (req, res) => {
     res.sendStatus(200);
 });
 
+setInterval(async () => {
+    const participantesDeletados = await db.collection("participants").find({
+        lastStatus: { $lt: Date.now() - 10000 }
+    }).toArray();
+    participantesDeletados.forEach(async (particip) => {
+        await db.collection("messages").insertOne(
+            {
+                from: particip.name,
+                to: 'Todos',
+                text: 'sai da sala...',
+                type: 'status',
+                time: pegarHoraAtual()
+            });
+    });
+    await db.collection("participants").deleteMany({
+        lastStatus: { $lt: Date.now() - 10000 }
+    });
+
+}, 15000);
 
 app.listen(PORT, () => {
     console.log(`Servidor funcionando na porta ${PORT}`);
