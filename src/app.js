@@ -2,7 +2,7 @@ import express, { json } from "express";
 import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import { postParticipantsSchemas } from "./schemas.js";
+import { postMessages, postParticipantsSchemas } from "./schemas.js";
 import { pegarHoraAtual } from "./pegarHoraAtual.js";
 
 dotenv.config();
@@ -39,6 +39,30 @@ app.post("/participants", async (req, res) => {
     await db.collection("participants").insertOne({ name: value.name, lastStatus: Date.now() });
     await db.collection("messages").insertOne({ from: value.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: pegarHoraAtual() });
     res.sendStatus(201);
+});
+
+app.get("/participants", async (req, res) => {
+    const participantesCadastrados = await db.collection("participants").find().toArray();
+    res.send(participantesCadastrados);
+});
+
+app.post("/messages", async (req, res) => {
+    const data = req.body;
+    const { value, error } = postMessages.validate(data);
+    if (error) return res.status(422).send(error.message);
+
+    const { user } = req.headers;
+
+    const participanteJaCadastrado = !!(await db.collection("participants").findOne({ name: user }));
+
+    if (!participanteJaCadastrado) return res.sendStatus(422);
+
+    await db.collection("messages").insertOne({ ...value, from: user, time: pegarHoraAtual() });
+
+    res.sendStatus(201);
+
+
+
 
 });
 
