@@ -81,6 +81,21 @@ app.get("/messages", async (req, res) => {
 
 });
 
+app.post("/status", async (req, res) => {
+    const { user } = req.headers;
+    const participanteJaCadastrado = !!(await db.collection("participants").findOne({ name: user }));
+
+    if (!participanteJaCadastrado) return res.sendStatus(404);
+
+    await db.collection("participants").updateOne({
+        name: user
+    },
+        {
+            $set: { lastStatus: Date.now() }
+        });
+    res.sendStatus(200);
+});
+
 
 app.listen(PORT, () => {
     console.log(`Servidor funcionando na porta ${PORT}`);
