@@ -9,3 +9,5 @@ export const postMessages = Joi.object({
     type: Joi.valid("message", "private_message"),
     text: Joi.string().required()
 });
+
+export const limitSchema = Joi.number().positive();

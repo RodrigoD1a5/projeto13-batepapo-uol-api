@@ -2,7 +2,7 @@ import express, { json } from "express";
 import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import { postMessages, postParticipantsSchemas } from "./schemas.js";
+import { limitSchema, postMessages, postParticipantsSchemas } from "./schemas.js";
 import { pegarHoraAtual } from "./pegarHoraAtual.js";
 
 dotenv.config();
@@ -61,8 +61,23 @@ app.post("/messages", async (req, res) => {
 
     res.sendStatus(201);
 
+});
 
+app.get("/messages", async (req, res) => {
+    const { limit } = req.query;
 
+    const { value, error } = limitSchema.validate(limit);
+
+    const { user } = req.headers;
+
+    if (error) return res.send(error.message);
+
+    const todasAsMensagens = await db.collection("messages").find({ $or: [{ to: user }, { from: user }, { to: "todos" }] }).toArray();
+    if (!limit) return res.send(todasAsMensagens);
+
+    const mensagensLimitadas = todasAsMensagens.slice(-value);
+
+    res.send(mensagensLimitadas);
 
 });
 
